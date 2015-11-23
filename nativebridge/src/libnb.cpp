@@ -15,7 +15,6 @@
 
 #include <dlfcn.h>
 #include <cutils/log.h>
-#include <cutils/properties.h>
 #include "nativebridge/native_bridge.h"
 
 namespace android {
@@ -52,14 +51,8 @@ static bool native_bridge2_initialize(const NativeBridgeRuntimeCallbacks *art_cb
                                       const char *isa)
 {
     ALOGV("enter native_bridge2_initialize %s %s", app_code_cache_dir, isa);
-    if (property_get_bool("persist.sys.nativebridge", 0)) {
-        if (NativeBridgeCallbacks *cb = get_callbacks()) {
-            return cb->initialize(art_cbs, app_code_cache_dir, isa);
-        }
-    } else {
-        ALOGW("Native bridge is disabled");
-    }
-    return false;
+    NativeBridgeCallbacks *cb = get_callbacks();
+    return cb ? cb->initialize(art_cbs, app_code_cache_dir, isa) : false;
 }
 
 static void *native_bridge2_loadLibrary(const char *libpath, int flag)
